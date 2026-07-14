@@ -1,0 +1,5 @@
+Variable,April,July,April SD,July SD,Difference,Percent Change,P-value,Significant
+Rainfall (mm),0.612,7.835,0.695,6.519,7.223,1180.525,0.0,True
+Soil Moisture (m³/m³),0.221,0.411,0.016,0.015,0.189,85.489,0.0,True
+Temperature (°C),32.745,25.101,0.938,1.168,-7.644,-23.345,0.0,True
+Boundary Layer Height (m),1096.843,743.578,104.019,128.368,-353.265,-32.207,0.0,True
