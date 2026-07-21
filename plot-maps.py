@@ -2,33 +2,16 @@ import os
 import xarray as xr
 import matplotlib.pyplot as plt
 
-# ==================================================
-# Load datasets
-# ==================================================
-
 land = xr.open_dataset("era5land_kerala_may2024.nc")
 era5 = xr.open_dataset("era5_blh_kerala_may2024.nc")
 
-# ==================================================
-# Output folder
-# ==================================================
-
-os.makedirs("plots", exist_ok=True)
-
-# ==================================================
-# Variables
-# ==================================================
 
 soil = land["swvl1"].mean(dim=["latitude", "longitude"])
 temp = land["t2m"].mean(dim=["latitude", "longitude"]) - 273.15
 rain = land["tp"].mean(dim=["latitude", "longitude"]) * 1000
 blh = era5["blh"].mean(dim=["latitude", "longitude"])
 
-time = land["valid_time"]
-
-# ==================================================
-# MAPS
-# ==================================================
+time = land["valid_time"].dt.day
 
 plt.figure(figsize=(8,6))
 land["swvl1"].isel(valid_time=0).plot(
@@ -56,9 +39,6 @@ plt.savefig("plots/blh_map.png", dpi=300)
 plt.savefig("plots/blh_map.pdf")
 plt.close()
 
-# ==================================================
-# TIME SERIES
-# ==================================================
 
 fig, axs = plt.subplots(
     4,
@@ -112,6 +92,8 @@ axs[3].set_ylabel("BLH (m)")
 axs[3].set_xlabel("Date")
 axs[3].set_title("Boundary Layer Height", fontsize=14, weight="bold")
 axs[3].grid(alpha=0.3)
+axs[3].set_xticks(time.values)
+axs[3].set_xlabel("Day of May")
 
 plt.tight_layout()
 
@@ -120,11 +102,54 @@ plt.savefig("plots/kerala_timeseries.pdf")
 
 plt.close()
 
-# ==================================================
-# STATISTICS
-# ==================================================
 
-print("\n================ SUMMARY ================\n")
+# Correlation 
+
+
+plt.figure(figsize=(6,5))
+
+plt.scatter(
+    soil.values,
+    blh.values,
+    s=70,
+    color="purple"
+)
+
+# Regression line
+import numpy as np
+
+m, c = np.polyfit(soil.values, blh.values, 1)
+
+x = np.linspace(
+    soil.min().item(),
+    soil.max().item(),
+    100
+)
+
+plt.plot(
+    x,
+    m*x + c,
+    color="black",
+    linestyle="--"
+)
+
+r = soil.to_series().corr(blh.to_series())
+
+plt.title(f"Soil Moisture vs BLH\nCorrelation = {r:.2f}")
+
+plt.xlabel("Mean Soil Moisture (m³/m³)")
+plt.ylabel("Mean Boundary Layer Height (m)")
+
+plt.grid(alpha=0.3)
+
+plt.tight_layout()
+
+plt.savefig("plots/soil_vs_blh_correlation.png", dpi=300)
+plt.savefig("plots/soil_vs_blh_correlation.pdf")
+
+plt.close()
+
+print("\n # SUMMARY \n")
 
 print(f"Mean Rainfall      : {rain.mean().item():.2f} mm")
 print(f"Mean Soil Moisture : {soil.mean().item():.3f} m³/m³")

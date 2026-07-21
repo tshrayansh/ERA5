@@ -111,3 +111,13 @@ plt.savefig(
 )
 
 plt.show()
+
+
+"""
+April : r = -0.511, p = 0.0039
+April correlation is statistically significant.
+
+July  : r = 0.294, p = 0.1144
+July correlation is NOT statistically significant.
+April Correlation : -0.511
+"""
